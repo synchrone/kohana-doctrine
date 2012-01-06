@@ -58,7 +58,7 @@ class Doctrine_ORM
         // if config was not set by init.php, load it
         if (self::$doctrine_config === NULL)
         {
-            self::$doctrine_config = Kohana::config('doctrine');
+            self::$doctrine_config = Kohana::$config->load('doctrine');
         }
 
         $config = new Configuration();
@@ -97,7 +97,7 @@ class Doctrine_ORM
         // load config if not defined
         if (self::$database_config === NULL)
         {
-            self::$database_config = Kohana::config('database');
+            self::$database_config = Kohana::$config->load('database');
         }
 
         // get $database_group config
