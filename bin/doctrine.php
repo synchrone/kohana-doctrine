@@ -77,6 +77,9 @@ foreach ($argv as $pos => $arg)
     }
 }
 $input = new Doctrine_ReadWriteArgvInput($argv2);
+if(!$input->hasOption('configuration')){
+    $input->setOption('configuration', Kohana::$config->load('doctrine')->get('configuration'));
+}
 // end: hack to get --database-group and pass it to the Doctrine_ORM constructor
 
 // create a Doctrine_ORM for one database group
@@ -98,9 +101,6 @@ $cli->setHelperSet($helperSet);
 
 foreach(Kohana::$config->load('doctrine')->get('console_commands',array()) as /** @var $command Symfony\Component\Console\Command */ $command){
     $cli->add($command);
-}
-if(!$input->hasOption('configuration')){
-    $input->setOption('configuration', Kohana::$config->load('doctrine')->get('configuration'));
 }
 
 $cli->run($input);

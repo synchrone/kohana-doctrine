@@ -7,4 +7,13 @@ class Doctrine_ReadWriteArgvInput extends Symfony\Component\Console\Input\ArgvIn
         }
         parent::setOption($name,$value);
     }
+
+    /**
+     * Binds the current Input instance with the given arguments and options.
+     * @param Symfony\Component\Console\Input\InputDefinition $definition A InputDefinition instance
+     */
+    public function bind(Symfony\Component\Console\Input\InputDefinition $definition){
+        $this->definition = $definition;
+        $this->parse();
+    }
 }
