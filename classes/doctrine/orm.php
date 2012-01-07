@@ -94,11 +94,20 @@ class Doctrine_ORM
         }
         $config->setMetadataDriverImpl($driver_implementation);
 
+
         // load config if not defined
         if (self::$database_config === NULL)
         {
             self::$database_config = Kohana::$config->load('database');
         }
+
+        $cacheDriver = self::$doctrine_config['cache_driver'];
+
+        if(is_string($cacheDriver)){
+            $cacheDriver = new $cacheDriver();
+        }
+
+        $config->setQueryCacheImpl($cacheDriver);
 
         // get $database_group config
         $db_config = Arr::GET(self::$database_config, $database_group, array());
