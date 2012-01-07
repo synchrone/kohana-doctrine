@@ -64,7 +64,7 @@ class Doctrine_ORM
         $config = new Configuration();
 
         // proxy configuration
-        $config->setProxyDir(self::$doctrine_config['proxy_dir']);
+        $config->setProxyDir(self::$doctrine_config['proxy_path']);
         $config->setProxyNamespace(self::$doctrine_config['proxy_namespace']);
         $config->setAutoGenerateProxyClasses((Kohana::$environment == Kohana::DEVELOPMENT));
 

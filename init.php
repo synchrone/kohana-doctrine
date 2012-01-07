@@ -44,7 +44,7 @@ $classLoader->register();
 
 // defines your "proxies" namespace
 $classLoader = new \Doctrine\Common\ClassLoader(
-        $doctrine_config['proxies_namespace'], $doctrine_config['proxies_path']);
+        $doctrine_config['proxy_namespace'], $doctrine_config['proxy_path']);
 $classLoader->register();
 
 // re-use already loaded Doctrine config
