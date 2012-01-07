@@ -95,12 +95,20 @@ $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
 $cli = new Symfony\Component\Console\Application('Kohana Doctrine Command Line Interface</info>'
         . PHP_EOL . '<comment>use --database-group to specifify another group from database.php (defaut: default)</comment>'
         . PHP_EOL . '<info>Doctrine', \Doctrine\ORM\Version::VERSION);
-$cli->setCatchExceptions(true);
-$cli->setHelperSet($helperSet);
 \Doctrine\ORM\Tools\Console\ConsoleRunner::addCommands($cli);
 
-foreach(Kohana::$config->load('doctrine')->get('console_commands',array()) as /** @var $command Symfony\Component\Console\Command */ $command){
+foreach(Kohana::$config->load('doctrine')->get('console_commands',array()) as
+    /** @var $command Symfony\Component\Console\Command */ $command)
+{
     $cli->add($command);
 }
 
+foreach(Kohana::$config->load('doctrine')->get('console_helpers',array()) as
+    /** @var $helper Symfony\Component\Console\Helper\HelperInterface */ $alias => $helper)
+{
+    $helperSet->set($helper);
+}
+$cli->setHelperSet($helperSet);
+
+$cli->setCatchExceptions(true);
 $cli->run($input);

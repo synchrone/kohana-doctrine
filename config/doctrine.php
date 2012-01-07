@@ -47,5 +47,7 @@ return array(
         //'N/A' => 'oci8',
     ),
     'console_commands' => array(),
-    'configuration' => APPPATH.'config/doctrine.xml'
+    'console_helpers' => array(),
+    'configuration' => APPPATH.'config/doctrine.xml',
+
 );
