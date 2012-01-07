@@ -46,4 +46,6 @@ return array(
         //'N/A' => 'pdo_oci',
         //'N/A' => 'oci8',
     ),
+    'console_commands' => array(),
+    'configuration' => APPPATH.'config/doctrine.xml'
 );

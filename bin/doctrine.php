@@ -76,7 +76,7 @@ foreach ($argv as $pos => $arg)
         unset($argv2[$pos]);
     }
 }
-$input = new Symfony\Component\Console\Input\ArgvInput($argv2);
+$input = new Doctrine_ReadWriteArgvInput($argv2);
 // end: hack to get --database-group and pass it to the Doctrine_ORM constructor
 
 // create a Doctrine_ORM for one database group
@@ -95,4 +95,12 @@ $cli = new Symfony\Component\Console\Application('Kohana Doctrine Command Line I
 $cli->setCatchExceptions(true);
 $cli->setHelperSet($helperSet);
 \Doctrine\ORM\Tools\Console\ConsoleRunner::addCommands($cli);
+
+foreach(Kohana::$config->load('doctrine')->get('console_commands',array()) as /** @var $command Symfony\Component\Console\Command */ $command){
+    $cli->add($command);
+}
+if(!$input->hasOption('configuration')){
+    $input->setOption('configuration', Kohana::$config->load('doctrine')->get('configuration'));
+}
+
 $cli->run($input);
