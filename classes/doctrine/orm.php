@@ -58,7 +58,7 @@ class Doctrine_ORM
         // if config was not set by init.php, load it
         if (self::$doctrine_config === NULL)
         {
-            self::$doctrine_config = Kohana::config('doctrine');
+            self::$doctrine_config = Kohana::$config->load('doctrine');
         }
 
         $config = new Configuration();
@@ -87,6 +87,9 @@ class Doctrine_ORM
             case 'xml':
                 $driver_implementation = new XmlDriver(array(self::$doctrine_config['mappings_path']));
                 break;
+            case 'annotation':
+                $driver_implementation = $config->newDefaultAnnotationDriver(array(self::$doctrine_config['mappings_path']));
+            	break;                
             default:
             case 'yaml':
                 $driver_implementation = new YamlDriver(array(self::$doctrine_config['mappings_path']));
@@ -97,7 +100,7 @@ class Doctrine_ORM
         // load config if not defined
         if (self::$database_config === NULL)
         {
-            self::$database_config = Kohana::config('database');
+            self::$database_config = Kohana::$config->load('database');
         }
 
         // get $database_group config
@@ -106,27 +109,44 @@ class Doctrine_ORM
         // verify that the database group exists
         if (empty($db_config))
         {
-            exit('database-group "' . $database_group . '" doesn\'t exists' . PHP_EOL);
+            throw new Kohana_Database_Exception('database-group "' . $database_group . '" doesn\'t exists');
         }
 
-        // database configuration
-        $connectionOptions = array(
-            'driver' => self::$doctrine_config['type_driver_mapping'][$db_config['type']],
-            'host' => $db_config['connection']['hostname'],
-            'dbname' => $db_config['connection']['database'],
-            'user' => $db_config['connection']['username'],
-            'password' => $db_config['connection']['password'],
-            'charset' => $db_config['charset'],
-        );
+        if($db_config['type'] == 'pdo'){
+            $pdo = new PDO($db_config['connection']['dsn'], $db_config['connection']['username'], $db_config['connection']['password'],
+                              array(PDO::ATTR_PERSISTENT => $db_config['connection']['persistent'])
+                          );
+            $connectionOptions = array(
+                'pdo' => $pdo,
+                'dbname' => null
+            );
+
+        }else{
+            // database configuration
+            $connectionOptions = array(
+                'driver' => self::$doctrine_config['type_driver_mapping'][$db_config['type']],
+                'host' => $db_config['connection']['hostname'],
+                'port' => $db_config['connection']['port'],
+                'dbname' => $db_config['connection']['database'],
+                'user' => $db_config['connection']['username'],
+                'password' => $db_config['connection']['password'],
+                'charset' => $db_config['charset'],
+            );
+        }
 
         // create Entity Manager
         $this->evm = new EventManager();
         $this->em  = EntityManager::create($connectionOptions, $config, $this->evm);
 
         // specify the charset for MySQL/PDO
-        if (self::$doctrine_config['type_driver_mapping'][$db_config['type']] == 'pdo_mysql')
+        $driverName = $this->em->getConnection()->getDriver()->getName();
+        if ($driverName == 'pdo_mysql')
         {
             $this->em->getEventManager()->addEventSubscriber(new MysqlSessionInit($db_config['charset'], 'utf8_unicode_ci'));
+        }
+        else if ($driverName == 'pdo_pgsql')
+        {
+            $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('bytea','text');
         }
 
         // @todo profiling

@@ -22,7 +22,7 @@
  */
 
 // include kohana-doctrine config
-$doctrine_config = Kohana::config('doctrine');
+$doctrine_config = Kohana::$config->load('doctrine');
 
 // include Doctrine ClassLoader.php
 include $doctrine_config['doctrine_path'] . 'Doctrine/Common/ClassLoader.php';

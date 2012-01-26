@@ -76,7 +76,10 @@ foreach ($argv as $pos => $arg)
         unset($argv2[$pos]);
     }
 }
-$input = new Symfony\Component\Console\Input\ArgvInput($argv2);
+$input = new Doctrine_ReadWriteArgvInput($argv2);
+if(!$input->hasOption('configuration')){
+    $input->setOption('configuration', Kohana::$config->load('doctrine')->get('configuration'));
+}
 // end: hack to get --database-group and pass it to the Doctrine_ORM constructor
 
 // create a Doctrine_ORM for one database group
@@ -92,7 +95,20 @@ $helperSet = new \Symfony\Component\Console\Helper\HelperSet(array(
 $cli = new Symfony\Component\Console\Application('Kohana Doctrine Command Line Interface</info>'
         . PHP_EOL . '<comment>use --database-group to specifify another group from database.php (defaut: default)</comment>'
         . PHP_EOL . '<info>Doctrine', \Doctrine\ORM\Version::VERSION);
-$cli->setCatchExceptions(true);
-$cli->setHelperSet($helperSet);
 \Doctrine\ORM\Tools\Console\ConsoleRunner::addCommands($cli);
+
+foreach(Kohana::$config->load('doctrine')->get('console_commands',array()) as
+    /** @var $command Symfony\Component\Console\Command */ $command)
+{
+    $cli->add($command);
+}
+
+foreach(Kohana::$config->load('doctrine')->get('console_helpers',array()) as
+    /** @var $helper Symfony\Component\Console\Helper\HelperInterface */ $alias => $helper)
+{
+    $helperSet->set($helper);
+}
+$cli->setHelperSet($helperSet);
+
+$cli->setCatchExceptions(true);
 $cli->run($input);
