@@ -87,6 +87,9 @@ class Doctrine_ORM
             case 'xml':
                 $driver_implementation = new XmlDriver(array(self::$doctrine_config['mappings_path']));
                 break;
+            case 'annotation':
+                $driver_implementation = $config->newDefaultAnnotationDriver(array(self::$doctrine_config['mappings_path']));
+            	break;                
             default:
             case 'yaml':
                 $driver_implementation = new YamlDriver(array(self::$doctrine_config['mappings_path']));
